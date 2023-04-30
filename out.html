@@ -1,0 +1,2091 @@
+ 
+<html> 
+ 
+<head> 
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type"> 
+<meta content="utf-8" http-equiv="encoding"> 
+<style> 
+canvas { 
+  image-rendering: optimizeSpeed;              
+  image-rendering: -moz-crisp-edges;           
+  image-rendering: -webkit-optimize-contrast;  
+  image-rendering: -o-crisp-edges;             
+  image-rendering: pixelated;                  
+  -ms-interpolation-mode: nearest-neighbor;    
+} 
+</style> 
+</head> 
+ 
+<body bgcolor="#000000" onresize="resizeHandle()" > 
+ 
+<div style="text-align:center;" > 
+<canvas id="myCanvas" width="320" height="240"  style="border:1px solid #000000;" /> 
+</div> 
+ 
+ 
+<script>  
+   function resizeHandle() 
+   {/* 
+    if (window.innerWidth > 1024 && window.innerHeight > 768) 
+    {  canvas.style.width = '1024px'; canvas.style.height = '768px';  return; } 
+    if (window.innerWidth > 512 && window.innerHeight > 384) 
+    {  canvas.style.width = '512px'; canvas.style.height = '384px';  return; } 
+    canvas.style.width = '256px'; canvas.style.height = '192px'; */ 
+   } 
+ 
+</script> 
+ 
+ <script> 
+  var canvas = document.getElementById("myCanvas"); 
+  canvas.style.width = '640px'; canvas.style.height = '480px'; 
+ 
+  var ctx = canvas.getContext("2d");  
+  ctx.imageSmoothingEnabled = false; 
+  var firstRun = 1;  
+  var bDebug = false;  
+ 
+ 
+ 
+ 
+  //need to predefine for chrome 
+  function init() { console.log("wronginit"); }  
+  function update() { console.log("wrongupdate"); } 
+   
+  var lastTime = 0; 
+  var load = 0;   
+   
+  //so this settimeout hack  
+  //so far guarantess 60 fps on all browsers  
+  function mainLoop() 
+    { 
+      
+      //check if tileimage is loaded 
+      //need to wait even though its part of file  
+      if  (load == 0) 
+      { 
+        load = 1; 
+        //if (tileImage == undefined) { load  = 0; } 
+        //else if (tileImage.width <= 0) { load = 0; }         
+      }//endif 
+       
+     if (load < 1) { setTimeout(mainLoop, 1); return; } 
+      
+     var ctime = new Date().getTime(); 
+     var dt; 
+     dt = ctime - lastTime; 
+     //if (dt > (1000/60)) 
+     if (dt > 14) 
+     { 
+     // console.log("dt ",dt); 
+      lastTime = ctime; 
+       ctx.save(); 
+        update(); 
+       ctx.restore(); 
+      
+     } 
+           
+     setTimeout(mainLoop, 1); 
+     //if (firstRun==1){ firstRun = 0; init(); }       
+    }//mainLoop 
+     
+    //seems to be faster than settimeout 
+    //setInterval(mainLoop, Math.floor(1000/120)); 
+    setTimeout(mainLoop, 1); 
+</script> 
+ 
+ 
+ 
+<!-- core libs --> 
+<script>
+  
+ var bDebug = false; 
+ 
+ 
+</script>
+  
+<script>
+  
+ 
+//CORELIB  
+  
+//RANDLIB 
+ 
+    var randHigh = 1; 
+    var randLow = 5961124214214; 
+     
+    function getRand() 
+    { 
+      randHigh = (randHigh>>2) + ( randHigh<<2); 
+      //randHigh += 66; 
+      //need to convert to integer with | 0 
+      //otherwise we get NaN 
+      randHigh = (randHigh + randLow) | 0; 
+      randLow += randHigh; 
+       
+      if (randHigh == 0) {randHigh+=3;} 
+       
+      var ret; 
+      ret = (randHigh % 32768) / 32768.0; 
+      if (ret<0.0){ ret =-ret;} 
+      if (ret>1.0) { ret = 1.0; } 
+      return ret;       
+    }//getrand  
+     
+    function getRand2() 
+    { 
+      return getRand() - 0.5;       
+    }//getrand2 
+     
+    function setRandSeed(seed) 
+    { 
+      randHigh = seed; 
+      randLow = seed * 5961124214;       
+    }//setRandSeed 
+     
+ 
+//FXRANDLIB 
+  
+    var fxRandHigh = 1; 
+    var fxRandLow = 5961124214214; 
+     
+    function fxRand() 
+    { 
+      fxRandHigh = (fxRandHigh>>2) + ( fxRandHigh<<2); 
+      //fxRandHigh += 66; 
+      //need to convert to integer with | 0 
+      //otherwise we get NaN 
+      fxRandHigh = (fxRandHigh + fxRandLow) | 0; 
+      fxRandLow += fxRandHigh; 
+       
+      if (fxRandHigh == 0) {fxRandHigh+=3;} 
+       
+      var ret; 
+      ret = (fxRandHigh % 32768) / 32768.0; 
+      if (ret<0.0){ ret =-ret;} 
+      if (ret>1.0) { ret = 1.0; } 
+      return ret;       
+    }//getfxRand  
+     
+    function fxRand2() 
+    { 
+      return fxRand() - 0.5;       
+    }//getfxRand2 
+     
+    function setFxRandSeed(seed) 
+    { 
+      fxRandHigh = seed; 
+      fxRandLow = seed * 5961124214;       
+    }//setfxRandSeed 
+     
+     
+ //KEYLIB 
+  
+  var vecKey = [];  
+   
+  var key_left =  37;     
+  var key_up =    38;     
+  var key_right = 39;     
+  var key_down =  40; 
+  var key_w = 87; 
+  var key_a = 65; 
+  var key_s = 83; 
+  var key_d = 68; 
+  var key_m = 77; 
+  var key_n = 78; 
+  var key_x = 88;  
+  var key_y = 89; 
+  var key_z = 90; 
+  var key_q = 81; 
+  var key_r = 82; 
+  var key_f = 70; 
+ 
+  var key_c = 67; 
+  var key_v = 86; 
+   
+  var key_u = 85; 
+  var key_g = 71; 
+   
+  //todo -- add the rest  
+  //https://www.javascriptkeycode.com/ 
+   
+   
+   
+   
+   
+  var keyUp =    false;   
+  var keyDown =  false;   
+  var keyLeft =  false;  
+  var keyRight = false; 
+  var keyFire =  false;  
+  var keyFire2 = false; 
+  var keyStrafeLeft = false; 
+  var keyStrafeRight = false; 
+  var fireHold =  0; 
+  var fire2Hold = 0; 
+  var arrowHold = 0; 
+  var jumpHold = 0; 
+ 
+  var lastKey = 0; 
+  var keyTime = 0; 
+  var lastKeyId = 0; 
+   
+  function isKdown(k) { return vecKey[k] == 1; } 
+  function isKeyDown(k) { return vecKey[k] == 1; } 
+   
+  function onKeyDown(event) 
+  { event.preventDefault();  
+    vecKey[event.keyCode] = 1; 
+  }//onkdown 
+   
+  function onKeyUp(event) 
+   { 
+     event.preventDefault();  
+     vecKey[event.keyCode] =  0;  
+     lastKey = keyTime;  
+     lastKeyId = event.keyCode; 
+     //console.log("lastkey ", lastKey, lastKeyId); 
+   }//onkup  
+   
+  document.addEventListener('keydown', onKeyDown , true); 
+  document.addEventListener('keyup',   onKeyUp, true); 
+   
+   
+  function clearKey() 
+  { 
+    var i; 
+    for (i=0;i<256;i+=1) 
+    { vecKey[i] = 0; } 
+  }//clearkey  
+   
+  function isAnyKeyDown() 
+  { 
+    var i; 
+    for (i=0;i<256;i+=1) 
+    { 
+      if (vecKey[i] == 1) { return true; } 
+    } 
+    return false; 
+  }//anydown 
+   
+   
+  var k_kup = key_w;  
+  var k_kup_alt = key_up; 
+   
+  var k_kdown = key_s;  
+  var k_kdown_alt = key_down; 
+   
+  var k_kleft= key_a;  
+  var k_kleft_alt = key_left; 
+   
+  var k_kright= key_d;  
+  var k_kright_alt = key_right; 
+ 
+  var k_kfire = key_z;  
+  var k_kfire_alt = key_y; 
+ 
+  var k_kfire2 = key_x;  
+  var k_kfire2_alt = key_c; 
+ 
+   
+  function resetKeys() 
+  { 
+    /* 
+    k_kup = key_w;  
+    k_kup_alt = key_up; 
+   
+    k_kdown = key_s;  
+    k_kdown_alt = key_down; 
+   
+    k_kleft= key_a;  
+    k_kleft_alt = key_left; 
+   
+    k_kright= key_d;  
+    k_kright_alt = key_right; 
+    */ 
+    k_kup_alt = 0; 
+    k_kdown_alt = 0; 
+    k_kleft_alt = 0;  
+    k_kright_alt = 0; 
+     
+    k_kup = key_up; 
+    k_kdown = key_down; 
+    k_kleft = key_left;  
+    k_kright = key_right; 
+     
+     k_kfire = key_z;  
+     k_kfire_alt = key_y; 
+ 
+    k_kfire2 = key_x;  
+    k_kfire2_alt = key_c; 
+         
+  }//reset  
+    
+    
+    
+   var knames = {}; 
+    knames[37] = "Left"; 
+    knames[38] = "Up"; 
+    knames[39] = "Right"; 
+    knames[40] = "Down"; 
+     
+    function getKname(k) 
+    {  
+      var ret; 
+      if (knames == undefined) 
+      { 
+        knames = {}; 
+          knames[37] = "Left"; 
+          knames[38] = "Up"; 
+          knames[39] = "Right"; 
+          knames[40] = "Down"; 
+      } 
+       ret= knames[k];  
+      if (ret != undefined){return ret; } 
+ 
+      ret = String.fromCharCode(k); 
+     // console.log("ret ", ret); 
+     return ret; 
+    }//getkname 
+     
+    function isKeyAllowed(k) 
+    { 
+      if (k > 250) { return false;} 
+      if (k == 80) { return false; } //P 
+      if (k == 27) { return false; } //ESC 
+       
+      if (k > 222) { return false; } 
+       
+       
+      return true; 
+    }//iskallowed 
+      
+    
+  function keyCheck() 
+  {       
+ 
+     keyStrafeLeft = isKdown(key_a); 
+     keyStrafeRight = isKdown(key_d); 
+      
+     keyUp =    (isKdown(k_kup) || isKdown(k_kup_alt)); 
+     keyDown =  (isKdown(k_kdown) || isKdown(k_kdown_alt)); 
+     keyLeft =  (isKdown(k_kleft) || isKdown(k_kleft_alt)); 
+     keyRight = (isKdown(k_kright) || isKdown(k_kright_alt)); 
+      
+     keyFire =  (isKdown(k_kfire) || isKdown(k_kfire_alt)); //(isKdown(key_n) || isKdown(key_z)||isKdown(key_y) ||isKdown(key_q)); 
+     keyFire2 = (isKdown(k_kfire2) || isKdown(k_kfire2_alt)); //(isKdown(key_m) || isKdown(key_x) ); 
+      
+     if (keyUp||keyDown||keyLeft||keyRight) { arrowHold += 1; } 
+     else { arrowHold = 0; } 
+      
+     if (keyFire) { fireHold += 1; } 
+     else { fireHold = 0; } 
+      
+     if (keyFire2) { fire2Hold += 1; } 
+     else { fire2Hold = 0; } 
+      
+      
+     if (keyFire || keyUp) { jumpHold += 1; } 
+     else { jumpHold = 0; } 
+      
+        
+  }//keycheck 
+ 
+   
+//RATLIB 
+ 
+    var mousex=0; var mousey=0;   //mouse coordinates 
+    var mbutton = 0;  //mouse left is down (1) or up (0) 
+    var mhold = 0; 
+    var mpress = 0; 
+    var mdelay = 0; 
+    var vmx = 0; var vmy = 0; //virtual mouse coordinates  
+    var pmx = 0; var pmy = 0; //previous mouse coord  
+    var mvx = 0; var mvy = 0; 
+    var mouseLook = false; 
+    var mouseSpeed = 1.0; 
+     
+     
+    function mouseUpdate() 
+    { 
+      if (mdelay > 0) 
+      { 
+        mdelay -= 1; 
+        mhold =0; mpress=0; mbutton = 0;         
+        return; 
+      }//endif  
+       
+      mpress = 0;  
+      if (mbutton > 0) { mhold += 1; } 
+      else { if (mhold>0){mpress=1;} mhold = 0; } 
+       
+    }//mouseupdate  
+           
+    //EVENT LISTENERS 
+     var c = document.getElementById("myCanvas"); 
+       c.addEventListener('mousemove', onMouseMove );           
+       c.addEventListener('mouseup', function(e){ mbutton = 0; onMup(); } ); 
+       c.addEventListener('mousedown', function(e){ mbutton = 1; onMdown(); } );  
+       c.addEventListener('mouseleave', function(e){ mbutton = 0; onMup(); } ); 
+ 
+       document.addEventListener('mousemove', onLockMove );           
+ 
+      function onMdown() 
+      {            
+        if (mouseLook==false){mbutton=0;} 
+      }//onmdown 
+       
+      function onMup()               
+      { 
+ 
+      }//onmup 
+               
+      function onMouseMove(e) 
+      {                 
+       //get the mouse coordinates inside the canvas 
+       var c = document.getElementById("myCanvas"); 
+       var r = c.getBoundingClientRect(); 
+        mousex = Math.round((e.clientX-r.left)/(r.right-r.left)*c.width ); 
+        mousey = Math.round((e.clientY-r.top)/(r.bottom-r.top)*c.height ); 
+ 
+        //vmx = mousex;        vmy = mousey; 
+      }//onMouseMove 
+       
+      function onLockMove(e) 
+      { 
+        //console.log(" document mousemove  ",gt, " xy  ", e.movementX, e.movementY) 
+ 
+       if (mouseLook) 
+       {     
+        vmx += e.movementX; 
+        vmy += e.movementY; 
+       }//endif  
+      }//onlockmove 
+       
+      function wrapMouse() 
+      { 
+         
+        mvx = pmx - vmx; 
+        mvy = pmy - vmy; 
+         
+        mvx *= mouseSpeed; 
+        mvy *= mouseSpeed; 
+         
+         
+         if (vmx < 0)    { vmx += 320;    } 
+         if (vmx > 320)  { vmx -= 320;    } 
+         if (vmy < 0)    { vmy += 240;    } 
+         if (vmy > 240)  { vmy -= 240;    } 
+         
+        pmx = vmx; 
+        pmy = vmy; 
+            
+      }//wrapmouse 
+       
+      function limitMouse() 
+      { 
+        mvx = pmx - vmx; 
+        mvy = pmy - vmy; 
+         
+        mvx *= mouseSpeed; 
+        mvy *= mouseSpeed; 
+         
+         
+         if (vmx < 0)    { vmx = 0;    } 
+         if (vmx > 320)  { vmx = 320;  } 
+         if (vmy < 0)    { vmy = 0;    } 
+         if (vmy > 240)  { vmy = 240;  } 
+         
+        pmx = vmx; 
+        pmy = vmy; 
+         
+         
+      }//limitmouse  
+       
+       
+           
+      var canvas=document.getElementById("myCanvas");     
+      canvas.requestPointerLock = canvas.requestPointerLock || 
+                                  canvas.mozRequestPointerLock; 
+ 
+      document.exitPointerLock = document.exitPointerLock || 
+                                 document.mozExitPointerLock; 
+ 
+      canvas.onclick = function() { canvas.requestPointerLock(); }; 
+       
+       
+      document.addEventListener('pointerlockchange', onLockChange, false); 
+      document.addEventListener('mozpointerlockchange', onLockChange, false); 
+ 
+      function onLockChange() 
+      {  
+        if (document.pointerLockElement === canvas || document.mozPointerLockElement === canvas)  
+        { console.log("lock is on ", gt); 
+         if (mouseLook == false) { mdelay=6;  } 
+          mouseLook = true; 
+        } 
+        else  
+        { console.log("lock is off ", gt); mouseLook = false;  mdelay=6;  } 
+               
+      }//onlockchange 
+       
+ 
+//SPRLIB 
+ 
+ 
+//https://developer.mozilla.org/en-US/docs/Web/API/ImageData 
+//imagedata is     width   height     data   (data is Uint8ClampedArray ) 
+ 
+  // https://stackoverflow.com/questions/10754661/javascript-getting-imagedata-without-canvas 
+  //thanks to chrome we cannot do this 
+ 
+  var sprImage; 
+  var vecSpr = []; 
+ 
+   //loading the image itself is blocked ..  
+  function loadImageToSpr(imgName) 
+  { 
+    var img= new Image();     
+    img.src = imgName; 
+    img.crossOrigin = "Anonymous"; //doesnt work 
+    img.onload = function()   
+    { 
+      console.log("image loaded ", sprImage); 
+    } 
+    sprImage = img; 
+  }//loadimagetoskin 
+   
+  function loadImage(imgName) 
+  { 
+    var img= new Image();     
+    img.src = imgName; 
+    img.crossOrigin = "Anonymous"; //doesnt work 
+    img.onload = function()   
+    { 
+      console.log("image loaded ", this); 
+    } 
+    return img; 
+  }//loadimage  
+   
+   
+  //ImageData { width: 256, height: 256, data: Uint8ClampedArray(262144) } 
+  function getImageAsData(img) 
+  { 
+   var canvas = document.createElement('canvas'); 
+   var context = canvas.getContext('2d'); 
+    canvas.width = img.width; 
+    canvas.height = img.height; 
+    context.drawImage(img, 0, 0 ); 
+    var myData = context.getImageData(0, 0, img.width, img.height); 
+   return myData;    
+  }//getasdata 
+ 
+   
+  function getSpr(spname) 
+  { 
+    var a; 
+    a = vecSpr[spname]; 
+    return a; 
+  }//getspr 
+   
+  function drawSpr(spname, ax, ay) 
+  { 
+    var a; 
+    a = vecSpr[spname]; 
+    if ( a == undefined) { return; } 
+     
+    ctx.drawImage(sprImage,  a.x,a.y,a.sw,a.sh,  
+    ax-a.sw*0.5, ay-a.sh*0.5,  a.sw, a.sh); 
+  }//drawspr  
+   
+  // ang     -- angle in radians  (to deg: 45*(3.1415/180.0) ) 
+  // scx scy -- scale  e.g. scx -1 for mirror horizontally 
+  function drawSprAdv(spname, ax, ay, ang, scx, scy) 
+  { 
+    a = vecSpr[spname]; 
+    if ( a == undefined) { return; } 
+    ctx.save(); 
+    ctx.translate(ax|0, ay|0); 
+    ctx.rotate(ang); 
+    ctx.scale(scx, scy); 
+    ctx.drawImage(sprImage,  a.x, a.y,a.sw,a.sh,  
+    -a.sw*0.5, -a.sh*0.5,  a.sw, a.sh); 
+    ctx.restore(); 
+  }//drawspradv 
+   
+   
+  //instead of scale use fixed size  
+  function drawSprAdv3(spname, ax, ay, ang, sx, sy) 
+  { 
+    a = vecSpr[spname]; 
+    if ( a == undefined) { return; } 
+    ctx.save(); 
+    ctx.translate(ax|0, ay|0); 
+    ctx.rotate(ang); 
+    //ctx.scale(scx, scy); 
+    ctx.drawImage(sprImage,  a.x, a.y,a.sw,a.sh,  
+    -sx*0.5, -sy*0.5,  sx, sy); 
+    ctx.restore(); 
+  }//drawspradv 
+   
+ 
+   
+  function drawSprRect(spname, ax, ay, aw, ah) 
+  { 
+    a = vecSpr[spname]; 
+    if ( a == undefined) { return; } 
+     
+    ctx.drawImage(sprImage,  a.x,a.y,a.sw,a.sh,  
+    ax, ay,  aw, ah); 
+  }//drawsprrect 
+   
+//FULLSCREENLIB 
+ 
+ 
+//https://www.w3schools.com/howto/howto_js_fullscreen.asp 
+ 
+function openFullscreen() { 
+  var elem = document.documentElement; 
+  if (elem.requestFullscreen) { 
+    elem.requestFullscreen(); 
+  } else if (elem.mozRequestFullScreen) { // Firefox  
+    elem.mozRequestFullScreen(); 
+  } else if (elem.webkitRequestFullscreen) { // Chrome, Safari and Opera  
+    elem.webkitRequestFullscreen(); 
+  } else if (elem.msRequestFullscreen) { // IE/Edge  
+    elem.msRequestFullscreen(); 
+  } 
+}//openFullscreen 
+ 
+function closeFullscreen() { 
+  var elem = document.documentElement; 
+  if (document.exitFullscreen) { 
+    document.exitFullscreen(); 
+  } else if (document.mozCancelFullScreen) { // Firefox  
+    document.mozCancelFullScreen(); 
+  } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera  
+    document.webkitExitFullscreen(); 
+  } else if (document.msExitFullscreen) { // IE/Edge  
+    document.msExitFullscreen(); 
+  } 
+}//closeFullscreen 
+ 
+ 
+//SOUNDLIB 
+ 
+ 
+ 
+ //there doesnt seem to be default panning .. making 3D sounds tricky  
+ //(it seems every browser has a different way to do it .. nice) 
+ 
+ var vecSnd = {}; 
+  
+ var curMus; 
+ var mastVol = 1.0; 
+ var sndVol = 1.0; 
+ var musVol = 0.25; 
+ var muteVol = 1.0; // 0.0 to mute  
+  
+ //listener pos  
+ var listx = 0.0; 
+ var listy = 0.0; 
+ var listz = 0.0; 
+ var listDist = 512.0; 
+  
+ function setListen(ax,ay,az) 
+ { listx=ax;listy=ay;listz=az; } 
+  
+ function resetVol() 
+ { 
+   mastVol = 1.0; 
+   sndVol = 1.0; 
+   musVol = 0.25; 
+ 
+ }//resetvol 
+  
+  
+ function pauseAllSnd() 
+ { 
+  // console.log("vecsnd ", vecSnd);  
+   var a; 
+   for (var i in vecSnd) { 
+    //console.log("vecsnd i ", i, vecSnd[i]); 
+    a = vecSnd[i]; 
+    a.pause(); 
+   }//nexti  
+ }//pauseall  
+  
+ function resumeAllSnd() 
+ { 
+   /* 
+   for (var i in vecSnd) { 
+    a = vecSnd[i]; 
+    if (a.paused) //not a good indicator  
+    { a.play(); } 
+   }//nexti */ 
+   if (curMus != undefined) 
+   { curMus.play(); } 
+    
+ }//resumeallsnd  
+  
+ function loadSound(srcName, sndName, npool) 
+ { 
+  var aud =  new Audio(srcName); 
+   aud.autoplay = false;  
+   vecSnd[sndName] = aud;    
+    
+   var i; var num; 
+   num = npool 
+   if (num == undefined) { return; } 
+   if (num < 1) { num = 1; } 
+   if (num > 8) { num = 8;} 
+   for (i=0;i<num;i+=1) 
+   { 
+    var a; a = new Audio(srcName); 
+    vecSnd[sndName+"_alt"+i] = a; 
+   }//nexti  
+ }//loadsound  
+  
+  
+ function getSnd(sndName) 
+ { 
+   var a;    var i;  
+   a = vecSnd[sndName]; 
+   if (a==undefined) { return undefined; } 
+   //console.log(gt,"getsnd ",sndName, a.currentTime, a.duration); 
+   if (a.currentTime <= 0 || a.currentTime >= a.duration || a.paused) { return a; } 
+   for (i=0;i<8;i+=1) 
+   { 
+    a = vecSnd[sndName+"_alt"+i]; 
+      if (a == undefined) { continue; }     
+     if (a.currentTime <= 0 || a.currentTime >= a.duration || a.paused) { return a; }      
+    //console.log(gt,"alt ",i,a.currentTime); 
+   }//nexti  
+   //a = vecSnd[sndName]; 
+   return a; 
+ }//getsnd   
+  
+  
+ function playSnd(sndName, vol) 
+ { 
+   var a; 
+   //a = vecSnd[sndName]; 
+   a = getSnd(sndName); 
+   if (a==undefined) { return; } 
+   if (muteVol < 1) { return; } 
+       
+   a.currentTime = 0.0001; 
+   a.loop = false; 
+   a.volume = vol * mastVol * sndVol * muteVol; 
+   a.play(); 
+  // console.log("playsnd a ",gt, a); 
+ }//playsound 
+  
+ function sndMag3(ax,ay,az) 
+ { return Math.sqrt(ax*ax+ay*ay+az*az); } 
+  
+ function playSnd3(sndName, vol, ax, ay, az) 
+ { 
+   var a; 
+  // a = vecSnd[sndName]; 
+   a = getSnd(sndName); 
+   if (a==undefined) { return; } 
+   if (muteVol < 1) { return; } 
+    
+   var d; 
+   d = sndMag3(listx-ax, listy-ay, listz-az); 
+   d = 1.0 - ( d / listDist); 
+    if (d < 0.0) { d = 0.0; } 
+    if (d > 1.0) { d = 1.0; } 
+    if (d <= 0.0) { return; } 
+    
+   vol *= d;    
+    
+   a.loop = false; 
+   a.volume = vol * mastVol * sndVol * muteVol; 
+   if (a.paused) { a.play(); } 
+   else { a.currentTime = 0; } 
+ }//playsnd3 
+  
+  
+ function recalMusVol() 
+ { 
+   if (curMus == undefined) { return; } 
+   curMus.volume = 1.0 * mastVol * musVol * muteVol; 
+     
+ }//recalmus  
+  
+ function playMus(sndName) 
+ { 
+   var a; 
+   a = vecSnd[sndName]; 
+   if (a==undefined) { return; } 
+    
+   if (curMus != undefined) 
+   { curMus.stop(); } 
+   curMus = a;  
+    
+   a.loop = true; 
+   a.volume = 1.0 * mastVol * musVol * muteVol; 
+   a.play(); 
+ }//playmus  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+ 
+ 
+ 
+     
+        
+       
+       
+       
+</script>
+  
+ 
+<!-- assets --> 
+<script>
+////var vecSpr = []; 
+ vecSpr["beast"] = { x:303, y:173, sw:16, sh:16, u0:0.591797 , v0:0.337891, u1:0.623047 , v1:0.369141 };  
+ vecSpr["bg1"] = { x:283, y:1, sw:32, sh:32, u0:0.552734 , v0:0.00195313, u1:0.615234 , v1:0.0644531 };  
+ vecSpr["brick"] = { x:181, y:285, sw:16, sh:16, u0:0.353516 , v0:0.556641, u1:0.384766 , v1:0.587891 };  
+ vecSpr["brick2"] = { x:283, y:35, sw:32, sh:32, u0:0.552734 , v0:0.0683594, u1:0.615234 , v1:0.130859 };  
+ vecSpr["btn144x24"] = { x:1, y:195, sw:144, sh:24, u0:0.00195313 , v0:0.380859, u1:0.283203 , v1:0.427734 };  
+ vecSpr["btn144x24over"] = { x:1, y:221, sw:144, sh:24, u0:0.00195313 , v0:0.431641, u1:0.283203 , v1:0.478516 };  
+ vecSpr["btn48x16"] = { x:1, y:301, sw:48, sh:16, u0:0.00195313 , v0:0.587891, u1:0.0957031 , v1:0.619141 };  
+ vecSpr["btn48x16over"] = { x:1, y:283, sw:48, sh:16, u0:0.00195313 , v0:0.552734, u1:0.0957031 , v1:0.583984 };  
+ vecSpr["btn64x16"] = { x:1, y:247, sw:64, sh:16, u0:0.00195313 , v0:0.482422, u1:0.126953 , v1:0.513672 };  
+ vecSpr["btn64x16over"] = { x:1, y:265, sw:64, sh:16, u0:0.00195313 , v0:0.517578, u1:0.126953 , v1:0.548828 };  
+ vecSpr["cat"] = { x:67, y:299, sw:16, sh:16, u0:0.130859 , v0:0.583984, u1:0.162109 , v1:0.615234 };  
+ vecSpr["chomp0"] = { x:101, y:299, sw:16, sh:16, u0:0.197266 , v0:0.583984, u1:0.228516 , v1:0.615234 };  
+ vecSpr["chomp1"] = { x:119, y:299, sw:16, sh:16, u0:0.232422 , v0:0.583984, u1:0.263672 , v1:0.615234 };  
+ vecSpr["chomp2"] = { x:147, y:247, sw:16, sh:16, u0:0.287109 , v0:0.482422, u1:0.318359 , v1:0.513672 };  
+ vecSpr["chomp3"] = { x:147, y:265, sw:16, sh:16, u0:0.287109 , v0:0.517578, u1:0.318359 , v1:0.548828 };  
+ vecSpr["devil"] = { x:147, y:283, sw:16, sh:16, u0:0.287109 , v0:0.552734, u1:0.318359 , v1:0.583984 };  
+ vecSpr["devilfire"] = { x:147, y:301, sw:16, sh:16, u0:0.287109 , v0:0.587891, u1:0.318359 , v1:0.619141 };  
+ vecSpr["duck1"] = { x:51, y:301, sw:8, sh:8, u0:0.0996094 , v0:0.587891, u1:0.115234 , v1:0.603516 };  
+ vecSpr["febdoub0"] = { x:147, y:221, sw:32, sh:24, u0:0.287109 , v0:0.431641, u1:0.349609 , v1:0.478516 };  
+ vecSpr["febdoub1"] = { x:283, y:69, sw:32, sh:24, u0:0.552734 , v0:0.134766, u1:0.615234 , v1:0.181641 };  
+ vecSpr["febdoub2"] = { x:283, y:95, sw:32, sh:24, u0:0.552734 , v0:0.185547, u1:0.615234 , v1:0.232422 };  
+ vecSpr["febdoub3"] = { x:283, y:121, sw:32, sh:24, u0:0.552734 , v0:0.236328, u1:0.615234 , v1:0.283203 };  
+ vecSpr["februn0"] = { x:283, y:147, sw:32, sh:24, u0:0.552734 , v0:0.287109, u1:0.615234 , v1:0.333984 };  
+ vecSpr["februn1"] = { x:67, y:247, sw:32, sh:24, u0:0.130859 , v0:0.482422, u1:0.193359 , v1:0.529297 };  
+ vecSpr["februn2"] = { x:101, y:247, sw:32, sh:24, u0:0.197266 , v0:0.482422, u1:0.259766 , v1:0.529297 };  
+ vecSpr["februn3"] = { x:67, y:273, sw:32, sh:24, u0:0.130859 , v0:0.533203, u1:0.193359 , v1:0.580078 };  
+ vecSpr["februn4"] = { x:101, y:273, sw:32, sh:24, u0:0.197266 , v0:0.533203, u1:0.259766 , v1:0.580078 };  
+ vecSpr["febstand"] = { x:147, y:195, sw:32, sh:24, u0:0.287109 , v0:0.380859, u1:0.349609 , v1:0.427734 };  
+ vecSpr["fire"] = { x:181, y:195, sw:16, sh:16, u0:0.353516 , v0:0.380859, u1:0.384766 , v1:0.412109 };  
+ vecSpr["gib"] = { x:51, y:283, sw:8, sh:8, u0:0.0996094 , v0:0.552734, u1:0.115234 , v1:0.568359 };  
+ vecSpr["ham"] = { x:181, y:231, sw:16, sh:16, u0:0.353516 , v0:0.451172, u1:0.384766 , v1:0.482422 };  
+ vecSpr["ham1"] = { x:135, y:283, sw:8, sh:8, u0:0.263672 , v0:0.552734, u1:0.279297 , v1:0.568359 };  
+ vecSpr["ham2"] = { x:51, y:311, sw:8, sh:8, u0:0.0996094 , v0:0.607422, u1:0.115234 , v1:0.623047 };  
+ vecSpr["ham3"] = { x:85, y:299, sw:8, sh:8, u0:0.166016 , v0:0.583984, u1:0.181641 , v1:0.599609 };  
+ vecSpr["ham4"] = { x:135, y:273, sw:8, sh:8, u0:0.263672 , v0:0.533203, u1:0.279297 , v1:0.548828 };  
+ vecSpr["magic"] = { x:181, y:249, sw:16, sh:16, u0:0.353516 , v0:0.486328, u1:0.384766 , v1:0.517578 };  
+ vecSpr["magichit"] = { x:181, y:213, sw:16, sh:16, u0:0.353516 , v0:0.416016, u1:0.384766 , v1:0.447266 };  
+ vecSpr["menuback"] = { x:1, y:1, sw:280, sh:192, u0:0.00195313 , v0:0.00195313, u1:0.548828 , v1:0.376953 };  
+ vecSpr["nerd"] = { x:181, y:267, sw:16, sh:16, u0:0.353516 , v0:0.521484, u1:0.384766 , v1:0.552734 };  
+ vecSpr["pause"] = { x:283, y:173, sw:18, sh:18, u0:0.552734 , v0:0.337891, u1:0.587891 , v1:0.373047 };  
+ vecSpr["pointer"] = { x:181, y:303, sw:16, sh:16, u0:0.353516 , v0:0.591797, u1:0.384766 , v1:0.623047 };  
+ vecSpr["pointer3"] = { x:199, y:195, sw:16, sh:16, u0:0.388672 , v0:0.380859, u1:0.419922 , v1:0.412109 };  
+ vecSpr["qmark0"] = { x:217, y:195, sw:16, sh:16, u0:0.423828 , v0:0.380859, u1:0.455078 , v1:0.412109 };  
+ vecSpr["qmark1"] = { x:235, y:195, sw:16, sh:16, u0:0.458984 , v0:0.380859, u1:0.490234 , v1:0.412109 };  
+ vecSpr["qmark2"] = { x:253, y:195, sw:16, sh:16, u0:0.494141 , v0:0.380859, u1:0.525391 , v1:0.412109 };  
+ vecSpr["qmark3"] = { x:271, y:195, sw:16, sh:16, u0:0.529297 , v0:0.380859, u1:0.560547 , v1:0.412109 };  
+ vecSpr["qmark4"] = { x:289, y:195, sw:16, sh:16, u0:0.564453 , v0:0.380859, u1:0.595703 , v1:0.412109 };  
+ vecSpr["qmark5"] = { x:199, y:213, sw:16, sh:16, u0:0.388672 , v0:0.416016, u1:0.419922 , v1:0.447266 };  
+ vecSpr["qmark6"] = { x:199, y:231, sw:16, sh:16, u0:0.388672 , v0:0.451172, u1:0.419922 , v1:0.482422 };  
+ vecSpr["qmark7"] = { x:199, y:249, sw:16, sh:16, u0:0.388672 , v0:0.486328, u1:0.419922 , v1:0.517578 };  
+ vecSpr["shot"] = { x:137, y:299, sw:8, sh:8, u0:0.267578 , v0:0.583984, u1:0.283203 , v1:0.599609 };  
+ vecSpr["tile0"] = { x:135, y:247, sw:8, sh:8, u0:0.263672 , v0:0.482422, u1:0.279297 , v1:0.498047 };  
+ vecSpr["tile1"] = { x:135, y:257, sw:8, sh:8, u0:0.263672 , v0:0.501953, u1:0.279297 , v1:0.517578 };  
+ vecSpr["tile1old"] = { x:199, y:285, sw:16, sh:16, u0:0.388672 , v0:0.556641, u1:0.419922 , v1:0.587891 };  
+ vecSpr["tile3"] = { x:85, y:309, sw:8, sh:8, u0:0.166016 , v0:0.603516, u1:0.181641 , v1:0.619141 };  
+ vecSpr["tile3old"] = { x:199, y:303, sw:16, sh:16, u0:0.388672 , v0:0.591797, u1:0.419922 , v1:0.623047 };  
+ vecSpr["worm"] = { x:217, y:213, sw:16, sh:16, u0:0.423828 , v0:0.416016, u1:0.455078 , v1:0.447266 };  
+ vecSpr["wormhead"] = { x:199, y:267, sw:16, sh:16, u0:0.388672 , v0:0.521484, u1:0.419922 , v1:0.552734 };  
+</script>
+  
+<script>
+var spr8png = "data:image/png;base64,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";</script>
+  
+<script>
+var snd3mp3 = "data:audio/mpeg;base64,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";</script>
+  
+<script>
+var snd5mp3 = "data:audio/mpeg;base64,//uwQAAAAyMKyP08wAJkYVkfp5gATbhZe/j2AAG3Cy9/HsAAeUIRERESUkm5B6ydknJgchBEMVENDGTLGz7gPMgiEh7TIB0Pf/+Hnj4HQ/MsIjlg+AYHwzwDrw/hn5////8AMP+AYIz4AYGD8DADN8mBgf/iP///47z/6H5vMjnh+Dg/M8R14e8oQiIiIkpJNyD1k7JOTA5CCIYqIaGMmWNn3AeZBEJD2mQDoe//8PPHwOh+ZYRHLB8AwPhngHXh/DPz////4AYf8AwRnwAwMH4GAGb5MDA//Ef///x3n/0PzeZHPD8HB+Z4jrw9hJ2WneHWWV1SMtGI1qxaNFDgEsrR6Em4iYDFPU2CRFohYhqwWEfAUMikDoyHstlgrpCqeqiktfqvfaZiXWXOiofB9p4iTIF7zxFSXPT073IsKFHMaulKLjhS7JFVnST3+ufD5efFVWKxGqxqGKYSdlp3h1lldUjLRiNasWjRQ4BLK0ehJuImAxT1NgkRaIWIasFhHwFDIpA6Mh7LZYK6QqnqopLX6r32mYl1lzoqHwfaeIkyBe88RUlz09O9yLChRzGrpSi44UuyRVZ0k9/rnw+XnxVVisRqsahigElESSkrKrtwQ5AiWazWSzkqozjI61SLaLRb1grBXQEobKiESr7TfyNPw4dHCLN5p7YDlnnvX1r/c/55/yRMeLnvjx3aZPtb+9/72+rD+PPXmiKMubzVVoEq8hi3dSq////////////////pKIklJWVXbghyBEs1mslnJVRnGR1qkW0Wi3rBWCugJQ2VEIlX2m/kafhw6OEWbzT2wHLPPevrX+5/zz/kiY//+7BAVIADUw/dZzxgCl5h+6znjAFOBZNxLBStqcCybiWClbUXPfHju0yfa397/3t9WH8eevNEUZc3mqrQJV5DFu6lVZVSZWVXstVJgkg6OUyfu5JhGqKn5mMBHCHFFCZA7odA6o/Uyj0JoOUcN6GCoxsawjZ2iUfPuaKKi7KqNpQVj6rjxC9ynYbyOMm6sVBTmcfOmZWPVVYayM6I6MzsUtnJczzkVJWdDuq1IKyPmjyJmUzKqTKyq9lqpMEkHRymT93JMI1RU/MxgI4Q4ooTIHdDoHVH6mUehNByjhvQwVGNjWEbO0Sj59zRRUXZVRtKCsfVceIXuU7DeRxk3VioKczj50zKx6qrDWRnRHRmdils5LmecipKzod1WpBWR80eRMymapVVWUW9hIdBTV4mGPNhlIqKC70dp7sDcKkHe7T5XS72dx1x2xCTIne2OMmL4OGVxrqYIWzu6oAmjm9Skv9opH+MlcfOyMC96VhHeE5BeomGIyploYb+Yl1fZPB57sH+0Pa7I0/wGT+CQHXE2/3E//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////9qlVVZRb2Eh0FNXiYY82GUiooLvR2nuwNwqQd7tPldLvZ3HXHbEJMid7Y4yYvg4ZXGupghbO7qgCaOb1KS/2ikf4yVx87IwL3pWEd4TkF6iYYjKmWhhv/7sECnAAfASdvLBhtqbwk7eWDDbU5xnW0sJK2hzjOtpYSVtP5iXV9k8Hnuwf7Q9rsjT/AZP4JAdcTb/cTpWalplfrYAYPEZXDsy1DHfHxzjsCRHN9plrBBqI994xKhfTXzpN0bxZ+/o8WPQRdR0FhXjoRHovUeolCZdRYwUco7jGGEinQsBHj+NVB8W6ki9G4hjkL0aKxvjo11Tx6miHUWQKZD8SYYeL9CxOo7jajo7pWalplfrYAYPEZXDsy1DHfHxzjsCRHN9plrBBqI994xKhfTXzpN0bxZ+/o8WPQRdR0FhXjoRHovUeolCZdRYwUco7jGGEinQsBHj+NVB8W6ki9G4hjkL0aKxvjo11Tx6miHUWQKZD8SYYeL9CxOo7jajo7lpVQUQLjRDGhWBlrvQI02L15+cppl9USxcSTgLQailqCMiBmRaMb90knGF1dXGl40wIcISwVwRwA9GjfodE5H9VzYQJZC1ZQiWCMMTLD5azMpf21EpJ/0ZDQuWN5+/odL6hkNwvqxFYER0yjXlLYiOloWEVQn//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8tKqCiBcaIY0KwMtd6BGmxevPzlNMvqiWLiScBaDUUtQRkQMyLRjfukk4wurq40vGmBDhCWCuCOAHo0b9DonI/qubCBLIWrKESwRhiZYfLWZlL+2olJP+jIaFyxvP39DpfUMhuF9WIrAiOmUa8pbER//uwQKcABu1m20sJG2h1rNtpYSNtD62ZZ6y07YH1syz1lp2w0tCwiqEqBJRSRSbbbi9WDP4Tm/SlDt6CVC7WH9lIeGKwRs2UFzfuJfWFvaO9usa2WI81jMl5FuRGiA3yg1lAe0ElvB7g5xK+NXjYtOLe5bGKjHqMVDqDPqQxLxv8fxXif4nxO0p8q0o1G9CNBJyXxriVkvnNOLTWi5Oi9Pn167Va7FVAkopIpNttxerBn8JzfpSh29BKhdrD+ykPDFYI2bKC5v3EvrC3tHe3WNbLEeaxmS8i3IjRAb5QaygPaCS3g9wc4lfGrxsWnFvctjFRj1GKh1Bn1IYl43+P4rxP8T4naU+VaUajehGgk5L41xKyXzmnFprRcnRenz69dqtdioEhERASEpJttyG1sU7AQoJkr6yaRrXpsbklkc5py5OLC4swRFqSQmv+6OwRY9icXDvmnblVm5qzpOXZiX/7UTMS1hv+xh283Oahn8k88m7M//82/OmRuMh33tuMZnYtNny7zP/8e87GZ+0P/W9qj/2HyqPqf//R9TlIO4AuFYgFu//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////wJCIiAkJSTbbkNrYp2AhQTJX1k0jWvTY3JLI5zTlycWFxZgiLUkhNf90dgix7E4uHfNO3KrNzVnScuzEv/2omYlrDf9jDt5uc1DP5J55N2Z//5t+dMjcZDvvbcYzOxabPl3mf/4952Mz/+7BApwAHK2DbewYzYoDsG29gxmxOfaFtjCztoc+0LbGFnbT9of+t7VH/sPlUfU//+j6nKQdwBcKxALdmRRaSS0ou9jW2+cQZbJZ+5AhE7PVIoZB7GbGTYiEdjHgQz6o0U+9/FDjmQePMp41X/zwfGYnBBj3EX/FKvPBugmf+UJ8RT9RY38hxMqNGf8k2okNcq/8q9lJtov+P1cdGeNP6DR8cGvPLJ/LbKf2/tpq9lcyKLSSWlF3sa23ziDLZLP3IEInZ6pFDIPYzYybEQjsY8CGfVGin3v4occyDx5lPGq/+eD4zE4IMe4i/4pV54N0Ez/yhPiKfqLG/kOJlRoz/km1EhrlX/lXspNtF/x+rjozxp/QaPjg155ZP5bZT+39tNXsrbJBQpJNtwA1OwcSqRKBP5Cl9mfRqyPmrjsWUgsGnqkKKVaqhZyUYLNRjHySRaqhZqVy15mZnDQlHDiW/vn/efUzldqrarzhxKnOJb/5mfONW//sSp5I42NXeZz68zLVv/n/vOPM42tVT6341VLEt//9U85VVrdjq1yJ06Iip3/yv///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7ZIKFJJtuAGp2DiVSJQJ/IUvsz6NWR81cdiykFg09UhRSrVULOSjBZqMY+SSLVULNSuWvMzM4aEo4cS398/7z6mcrtVbVecOJU5xLf/Mz5xq3/9iVPJHGxq7zOfXmZat/8/95x//7sECnAAdNYtnR6TNggKxbOj0mbA41m0WnjG25xzNotPGNtpnG1qqfW/GqpYlv//qnnKqtbsdWuROnREVO/+VCcu+21u1skoSYjw3S9F5RxwrSxJBbJobwtIr5pWUjuJfPWFL5OOJj4JQwN7HIw+UcZqoZyEoPMN5sxoGHLkFLe1WRrUY/XjKvJBRrqgUvOlRO1RmKloJh+pIxMealn0vOGWXYzGrXNVsOlt2WseuFJfoTl322t2tklCTEeG6XovKOOFaWJILZNDeFpFczSmRHTEvnrCl8nHEx8EoYG9jkYPKOM1oZyEocw3mbGgYcuQUt7VYmtQMfrxlUpIKNdUUvb6J2qMxUtBMP1JGJjzUs+l5wy17GZ1a5qth1duy1j1woyVgy73XbXb7XbiPGslEKXRckOWqJ1WzPrxfDCWoUBE4VQwqkGFeWTBhToBClLUBJqrVaUBgJRmFMewETUvZuqJLVVXJjXL4zcZturn0mKlqAlqzNxmdaTRj8MvxUOxoL8UG4FcTOONG/iKxBf8qS4FHQjsf///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////uwQKcADuJIxmnjG2pxqRjNPGNtQAABLgAAACAAACXAAAAE/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8y73XbXb7XbiPGslEKXRckOWqJ1WzPrxfDCWoUBE4VQwqkGFeWTBhToBClLUBJqrVaUBgJRmFMewETUvZuqJLVVXJjXL4zcZturn0mLLUBLVmP2Z1pNGPgZfiodjQX4oNwK4mccaN/EViC/5UlwKOhHYv//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////+7BApwAP/ABLgAAACE6ACXAAAAEAAAEuAAAAIAAAJcAAAAT////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7sECnAA/8AEuAAAAIToAJcAAAAQAAAS4AAAAgAAAlwAAABP////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////uwQKcAD/wAS4AAAAhOgAlwAAABAAABLgAAACAAACXAAAAE////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////+7BApwAP/ABLgAAACE6ACXAAAAEAAAEuAAAAIAAAJcAAAAT////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7sECnAA/8AEuAAAAIToAJcAAAAQAAAS4AAAAgAAAlwAAABP////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////uwQKcAD/wAS4AAAAhOgAlwAAABAAABLgAAACAAACXAAAAE////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////+7BApwAP/ABLgAAACE6ACXAAAAEAAAEuAAAAIAAAJcAAAAT////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7sECnAA/8AEuAAAAIToAJcAAAAQAAAS4AAAAgAAAlwAAABP////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////uwQKcAD/wAS4AAAAhOgAlwAAABAAABLgAAACAAACXAAAAE////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////+7BApwAP/ABLgAAACE6ACXAAAAEAAAEuAAAAIAAAJcAAAAT////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7sECnAA/8AEuAAAAIToAJcAAAAQAAAS4AAAAgAAAlwAAABP////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////uwQKcAD/wAS4AAAAhOgAlwAAABAAABLgAAACAAACXAAAAE////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////+7BApwAP/ABLgAAACE6ACXAAAAEAAAEuAAAAIAAAJcAAAAT////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7sECnAA/8AEuAAAAIToAJcAAAAQAAAS4AAAAgAAAlwAAABP////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////uwQKcAD/wAS4AAAAhOgAlwAAABAAABLgAAACAAACXAAAAE////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////+7BApwAP/ABLgAAACE6ACXAAAAEAAAEuAAAAIAAAJcAAAAT////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7sECnAA/8AEuAAAAIToAJcAAAAQAAAS4AAAAgAAAlwAAABP////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////uwQKcAD/wAS4AAAAhOgAlwAAABAAABLgAAACAAACXAAAAE////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////+7BApwAP/ABLgAAACE6ACXAAAAEAAAEuAAAAIAAAJcAAAAT////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7sECnAA/8AEuAAAAIToAJcAAAAQAAAS4AAAAgAAAlwAAABP////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////uwQKcAD/wAS4AAAAhOgAlwAAABAAABLgAAACAAACXAAAAE////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////+7BApwAP/ABLgAAACE6ACXAAAAEAAAEuAAAAIAAAJcAAAAT////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7sECnAA/8AEuAAAAIToAJcAAAAQAAAS4AAAAgAAAlwAAABP////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////uwQKcAD/wAS4AAAAhOgAlwAAABAAABLgAAACAAACXAAAAE////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////+7BApwAP/ABLgAAACE6ACXAAAAEAAAEuAAAAIAAAJcAAAAT////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7sECnAA/8AEuAAAAIToAJcAAAAQAAAS4AAAAgAAAlwAAABP////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////uwQKcAD/wAS4AAAAhOgAlwAAABAAABLgAAACAAACXAAAAE////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////+7BApwAP/ABLgAAACE6ACXAAAAEAAAEuAAAAIAAAJcAAAAT////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7sECnAA/8AEuAAAAIToAJcAAAAQAAAS4AAAAgAAAlwAAABP////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////uwQKcAD/wAS4AAAAhOgAlwAAABAAABLgAAACAAACXAAAAE////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////+7BApwAP/ABLgAAACE6ACXAAAAEAAAEuAAAAIAAAJcAAAAT////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7sECnAA/8AEuAAAAIToAJcAAAAQAAAS4AAAAgAAAlwAAABP////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////uwQKcAD/wAS4AAAAhOgAlwAAABAAABLgAAACAAACXAAAAE////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////+7BApwAP/ABLgAAACE6ACXAAAAEAAAEuAAAAIAAAJcAAAAT/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";</script>
+  
+<script>
+var titlepng = "data:image/png;base64,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";</script>
+  
+ 
+<!-- load extra libs here --> 
+<script>
+ 
+ 
+ 
+ var imgData = ctx.createImageData(320, 240); 
+ //ctx.putImageData(imgData, 0, 0); 
+  //    imgData.data[t+0] = rc; 
+  //    imgData.data[t+1] = gc; 
+  //    imgData.data[t+2] = bc; 
+  //    imgData.data[t+3] = 255; 
+  
+  function setDataPix(ax, ay, rc, gc, bc) 
+  { 
+    ax |= 0; ay |= 0; 
+    var t = (ax + (ay*320)) * 4; 
+    //console.log(" t ", t); 
+    imgData.data[t+0] = rc; 
+    imgData.data[t+1] = gc; 
+    imgData.data[t+2] = bc; 
+    imgData.data[t+3] = 255; 
+  }//setpixel   
+   
+  function clearDataPix( rc, gc, bc) 
+  { 
+      var i; var num; 
+      num=320*240*4; 
+      for (i=0;i<num;i+=4) 
+      { 
+        imgData.data[i+0] = rc; 
+        imgData.data[i+1] = gc; 
+        imgData.data[i+2] = bc; 
+        imgData.data[i+3] = 255;   
+      }//nexti  
+  }//cleardata  
+   
+   
+  function setDataLine(x0, y0, x1, y1,  rc, gc, bc)  
+ { 
+   var dx, dy, err, e2; var i; 
+   x0 |= 0; y0 |= 0; x1 |= 0; y1 |= 0; 
+    
+   dx = Math.abs(x1-x0), sx = x0<x1 ? 1 : -1; 
+   dy = Math.abs(y1-y0), sy = y0<y1 ? 1 : -1;  
+   err = (dx>dy ? dx : -dy)/2; 
+  
+    for(i=0;i<400;i+=1){ 
+      setDataPix(x0, y0, rc, gc, bc); 
+      if (x0==x1 && y0==y1) break; 
+      e2 = err; 
+      if (e2 >-dx) { err -= dy; x0 += sx; } 
+      if (e2 < dy) { err += dx; y0 += sy; } 
+    }//nexti 
+}//setline 
+   
+   
+  </script>
+  
+<script>
+  
+    var gt = 0;   
+ 
+    var camx = 0; 
+    var camy = 0; 
+    var camz = 0; 
+ 
+    var camYaw = 0; 
+    var camPitch = 0; 
+ 
+    var wmx = 0; 
+    var wmy = 0; 
+ 
+  </script>
+  
+<script>
+ 
+ 
+ 
+var frameSkip = 0; 
+ 
+function loadConfig() 
+{ 
+   
+  console.log("loadconfig ", keyTime); 
+   
+ if ( localStorage.mastVol != undefined)    { mastVol = localStorage.mastVol;       } 
+ if ( localStorage.sndVol != undefined)     { sndVol = localStorage.sndVol;         } 
+ if ( localStorage.musVol != undefined)     { musVol = localStorage.musVol;         }  
+ if ( localStorage.muteVol != undefined)    { muteVol = localStorage.muteVol;       } 
+ if ( localStorage.mouseSpeed != undefined) { mouseSpeed = localStorage.mouseSpeed; } 
+ if ( localStorage.frameSkip != undefined)  { frameSkip = localStorage.frameSkip;   } 
+   
+ 
+ 
+ if ( localStorage.k_kup != undefined)      { k_kup = localStorage.k_kup;   } 
+ if ( localStorage.k_kup_alt != undefined)  { k_kup_alt = localStorage.k_kup_alt;   } 
+   
+ if ( localStorage.k_kdown != undefined)      { k_kdown = localStorage.k_kdown;   } 
+ if ( localStorage.k_kdown_alt != undefined)  { k_kdown_alt = localStorage.k_kdown_alt;   } 
+  
+ if ( localStorage.k_kleft != undefined)      { k_kleft = localStorage.k_kleft;   } 
+ if ( localStorage.k_kleft_alt != undefined)  { k_kleft_alt = localStorage.k_kleft_alt;   } 
+  
+ if ( localStorage.k_kright != undefined)      { k_kright = localStorage.k_kright;   } 
+ if ( localStorage.k_kright_alt != undefined)  { k_kright_alt = localStorage.k_kright_alt;   } 
+  
+ if ( localStorage.k_kfire != undefined)      { k_kfire = localStorage.k_kfire;   } 
+ if ( localStorage.k_kfire_alt != undefined)  { k_kfire_alt = localStorage.k_kfire_alt;   } 
+ 
+ if ( localStorage.k_kfire2 != undefined)      { k_kfire2 = localStorage.k_kfire2;   } 
+ if ( localStorage.k_kfire2_alt != undefined)  { k_kfire2_alt = localStorage.k_kfire2_alt;   } 
+ 
+}//loadconfig 
+ 
+function saveConfig() 
+{ 
+  console.log("saveconfig ", keyTime); 
+   
+ localStorage.mastVol = mastVol; 
+ localStorage.sndVol = sndVol; 
+ localStorage.musVol = musVol; 
+ localStorage.muteVol = muteVol; 
+ localStorage.mouseSpeed = mouseSpeed; 
+ localStorage.frameSkip = frameSkip; 
+  
+   localStorage.k_kup = k_kup; 
+   localStorage.k_kup_alt = k_kup_alt; 
+    
+   localStorage.k_kdown = k_kdown; 
+   localStorage.k_kdown_alt = k_kdown_alt; 
+    
+   localStorage.k_kleft = k_kleft; 
+   localStorage.k_kleft_alt = k_kleft_alt; 
+    
+   localStorage.k_kright = k_kright; 
+   localStorage.k_kright_alt = k_kright_alt; 
+    
+   localStorage.k_kfire = k_kfire; 
+   localStorage.k_kfire_alt = k_kfire_alt; 
+ 
+   localStorage.k_kfire2 = k_kfire2; 
+   localStorage.k_kfire2_alt = k_kfire2_alt; 
+   
+}//saveconfig  
+</script>
+  
+<script>
+ 
+ 
+  var paused = false; 
+ 
+//note -- key names are also used for saving and display  
+//todo -- variable for display name  
+  var k_upName =     "Up"; 
+  var k_downName =   "Down"; 
+  var k_leftName =   "Left"; 
+  var k_rightName =  "Right"; 
+  var k_fireName =   "Jump"; 
+  var k_fire2Name =  "Fire"; 
+   
+  var hasFire1 = false; 
+  var hasFire2 = false;  
+ 
+  var k_showAimConf = false; 
+  var k_showVidConf = false;  
+  var k_showMusConf = false;  
+   
+  var firstMenu = true; 
+   
+var font8x8png = "data:image/png;base64,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"; 
+ 
+var font10x12png = "data:image/png;base64,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"; 
+ 
+ 
+//  var fontImage = loadImage(fontsprpng); 
+  var smallFont = loadImage(font8x8png); 
+//  var bigFont = loadImage("font10x12.png"); 
+  var bigFont = loadImage(font10x12png); 
+   
+  var titleImg = loadImage(titlepng); 
+ 
+  var btnPush = -1; 
+  var btnOver = -1; 
+  var btnFocus = -1;  
+  var btnValue = 0; 
+  var btnDisable = -1; 
+  var menuState = 0; 
+  var optState = 0; 
+  var keyPrompt = 0; 
+ 
+ function resetBtn() 
+  { 
+   btnPush = -1; 
+   btnOver = -1;   
+    //btnFocus = -1;  
+    btnValue = 1.0; 
+    btnDisable = -1; 
+  }//resetbtn  
+   
+  /* 
+ // var firstfont = true; 
+  function drawFont(ax, ay, aw, ah, str) 
+  { 
+    var i, num; var a; 
+    //var aw, ah;    aw = 8; ah = 8; 
+    num = str.length; 
+    for (i=0;i<num;i+=1) 
+    { 
+      a = vecSpr[str[i]]; 
+      //if (firstfont) { console.log("str i ", i, str[i], a); } 
+     // if ( a == undefined) { ax+=aw; continue; } 
+      if (str[i] == " ")  { ax+=aw; continue; } 
+      if ( a== undefined) { a = vecSpr["?"]; } 
+      ctx.drawImage(fontImage, a.x,a.y,a.sw,a.sh,     ax, ay,  aw, ah); 
+      ax += aw;   
+    } //nexti  
+   // firstfont = false; 
+  }//drawfont  
+  */ 
+ 
+ 
+  function sprBtn(id, str, ax, ay, aw, ah) 
+  { 
+    var over; 
+    over = (vmx<ax||vmx>=ax+aw||vmy<ay||vmy>=ay+ah) == false; 
+    if (btnDisable == 1) { over = false; } 
+    if (over && mhold == 1) { mhold = 3; btnFocus = id; } 
+    if (btnFocus == id) { ax += 1; ay+= 1; } 
+   
+    drawSprRect(str, ax,ay,aw,ah); 
+ 
+    //if (over && btnFocus < 0) { ctx.fillStyle = btnColor3; } 
+    //ctx.fillRect(ax,ay,aw,ah); 
+ 
+    if (over && btnFocus == id && mpress == 1) 
+    { btnPush = id; } 
+ 
+  }//sprbtn 
+   
+  function drawFont(ax, ay, sw,sh,  str) 
+  { 
+    var i, num; var a; 
+    var aw, ah; var sx; 
+    aw = 8; ah = 8; sx = ax; 
+    num = str.length; 
+    for (i=0;i<num;i+=1) 
+    { 
+      //a = vecSpr[str[i]]; 
+       a = str.charCodeAt(i); 
+      if (str[i] == " ")  { ax+=aw; continue; } 
+      if (a == 10) { ax = sx; ay+=ah; continue; } // \n 
+      fx = Math.floor(((a % 16)|0) * aw); 
+      fy = Math.floor(((a / 16)|0) * ah); 
+      ctx.drawImage(smallFont, fx,fy, aw,ah,     ax, ay,  sw, sh); 
+      ax += aw;   
+    } //nexti  
+  }//drawfont3  
+   
+  function drawFont3(ax, ay,  str) 
+  { 
+    var i, num; var a; 
+    var aw, ah;  var sx; 
+    aw = 10; ah = 12; sx = ax; 
+    num = str.length; 
+    for (i=0;i<num;i+=1) 
+    { 
+      //a = vecSpr[str[i]]; 
+       a = str.charCodeAt(i); 
+      if (str[i] == " ")  { ax+=aw; continue; } 
+      if (a == 10) { ax = sx; ay+=ah; continue; } // \n 
+      fx = Math.floor(((a % 16)|0) * aw); 
+      fy = Math.floor(((a / 16)|0) * ah); 
+      ctx.drawImage(bigFont, fx,fy, aw,ah,     ax, ay,  aw, ah); 
+      ax += aw;   
+    } //nexti  
+  }//drawfont3  
+   
+   
+   
+  function drawFont3Scale(ax, ay, wx,wy,  str) 
+  { 
+    var i, num; var a; 
+    var aw, ah;  var sx; 
+    aw = 10; ah = 12; sx = ax; 
+    num = str.length; 
+    for (i=0;i<num;i+=1) 
+    { 
+      //a = vecSpr[str[i]]; 
+       a = str.charCodeAt(i); 
+      if (str[i] == " ")  { ax+=aw*wx; continue; } 
+      if (a == 10) { ax = sx; ay+=ah*wy; continue; } // \n 
+      fx = Math.floor(((a % 16)|0) * aw); 
+      fy = Math.floor(((a / 16)|0) * ah); 
+      ctx.drawImage(bigFont, fx,fy, aw,ah,     ax, ay,  aw*wx, ah*wy); 
+      ax += aw*wx;   
+    } //nexti  
+  }//drawfont3  
+   
+   
+  function drawLabel(ax,ay, size, str) 
+  { 
+    drawFont(ax,ay,size,size, str); 
+  }//drawlabel  
+  
+ function drawLabel3(ax,ay,  str) 
+  { 
+    drawFont3(ax,ay, str); 
+  }//drawlabel  
+  
+  
+  var btnColor = "#808080"; 
+  var btnColor3 = "#b0b0b0"; 
+   
+  function resetBtnCol() 
+  { btnColor = "#808080"; btnColor3 = "#b0b0b0"; } 
+ 
+  function setBtnColA() 
+  { btnColor = "#3030a0"; btnColor3 = "#6060b0"; } 
+   
+   
+  function isOver(ax, ay, aw, ah) 
+  { 
+    var over; 
+    over = (vmx<ax||vmx>=ax+aw||vmy<ay||vmy>=ay+ah) == false; 
+    if (btnDisable == 1) { over = false; } 
+    return over; 
+  }//isover  
+   
+  //drawbutton 
+  function drawBtn(id, ax, ay, aw, ah, str) 
+  { 
+    var over; 
+    over = (vmx<ax||vmx>=ax+aw||vmy<ay||vmy>=ay+ah) == false; 
+    if (btnDisable == 1) { over = false; } 
+ 
+    if (over && mhold == 1) { btnFocus = id; } 
+    if (btnFocus == id) { ax += 1; ay+= 1; } 
+     
+    var btnSpr = undefined; 
+    var btnSprName = "none"; 
+     
+    if (aw==64&&ah==16)  { btnSprName = "btn64x16";  if (over && btnFocus < 0) { btnSprName+="over"; }  } 
+    if (aw==48&&ah==16)  { btnSprName = "btn48x16";  if (over && btnFocus < 0) { btnSprName+="over"; }  } 
+    if (aw==144&&ah==24)  { btnSprName = "btn144x24";  if (over && btnFocus < 0) { btnSprName+="over"; }  } 
+     
+    btnSpr = getSpr(btnSprName); 
+    if (btnSpr != undefined) 
+    { 
+      drawSpr(btnSprName, ax+aw*0.5, ay+ah*0.5); 
+    }//endif  
+    
+     
+    if (btnSpr == undefined) 
+    { 
+     ctx.fillStyle = "#000000"; 
+     ctx.fillRect(ax-1,ay-1,aw+2,ah+2); 
+     ctx.fillStyle = btnColor; 
+     if (over && btnFocus < 0) { ctx.fillStyle = btnColor3; } 
+     ctx.fillRect(ax,ay,aw,ah); 
+    }//endif  
+     
+    var size; 
+    size = ah*0.5; //16 
+    var d; 
+    d = (str.length)* 10 * 0.5; // (size*0.5); 
+    //drawFont(ax+(aw*0.5)-d,ay+ah*0.5-(size*0.5),size,size, str); 
+    drawFont3(ax+(aw*0.5)-d, ay+ah*0.5-(size*0.5)-2, str); 
+         
+    if (over && btnFocus == id && mpress == 1) 
+    { btnPush = id; 
+       
+      if (firstMenu==false) 
+      { 
+       if(str=="Continue") {playSnd("snd13", 1); } 
+       else { playSnd("snd12", 1); } 
+      }//endif3 
+    }//endif  
+  }//drawbtn  
+   
+  var sliderColor = "#30f030"; 
+  function drawSlider(id, ax, ay, aw, ah, t) 
+  { 
+    var over; 
+    over = (vmx<ax||vmx>=ax+aw||vmy<ay||vmy>=ay+ah) == false; 
+    if (btnDisable == 1) { over = false; } 
+ 
+    if (over && mhold == 1)    { btnFocus = id; } 
+     
+    var rx; var u; 
+    rx = vmx - ax; 
+    if (rx < 0) { rx = 0; } 
+    if (rx > aw) { rx = aw; } 
+     
+    u = rx / aw;  
+ 
+    if (btnFocus == id) { t = u; } 
+    btnValue = t; 
+      
+    ctx.fillStyle = "#000000"; 
+    ctx.fillRect(ax-1,ay-1,aw+2,ah+2); 
+    ctx.fillStyle = "#303030"; 
+    ctx.fillRect(ax,ay,aw,ah); 
+    ctx.fillStyle = sliderColor; 
+    ctx.fillRect(ax,ay,aw*t,ah); 
+     
+ 
+    if (btnFocus == id && mpress == 1) { btnPush = id;  btnValue = u; } 
+     
+ 
+    if (btnFocus > 0 && btnFocus != id) { return; } 
+    if (over || btnFocus == id) 
+    { 
+     ctx.fillStyle = "#000000"; 
+     ctx.fillRect(ax+aw*u,ay,3, ah); 
+    } 
+    
+    
+   //return u; 
+  }//drawslider  
+  
+  function setKeyBtn(kname, key) 
+  { 
+    if (kname == k_leftName)      { k_kleft = key;      return; } 
+    if (kname == k_leftName+ " Alt")  { k_kleft_alt = key;  return; } 
+    if (kname == k_rightName)     { k_kright = key;     return; } 
+    if (kname == k_rightName+" Alt") { k_kright_alt = key;return; } 
+ 
+    if (kname == k_upName)      { k_kup = key;         return; } 
+    if (kname == k_upName+ " Alt")  { k_kup_alt = key;     return; } 
+    if (kname == k_downName)     { k_kdown = key;       return; } 
+    if (kname == k_downName+ " Alt") { k_kdown_alt = key;   return; } 
+ 
+    if (kname == k_fireName)     { k_kfire = key;       return; } 
+    if (kname == k_fireName+ " Alt") { k_kfire_alt = key;   return; } 
+ 
+    if (kname == k_fire2Name)     { k_kfire2 = key;       return; } 
+    if (kname == k_fire2Name+ " Alt") { k_kfire2_alt = key;   return; } 
+     
+  }//setkeybtn 
+     
+  function setKey(kname, key) 
+  {       
+    setKeyBtn(kname, key); 
+    saveConfig(); 
+  }//setkey  
+   
+ 
+ // menuState = 1; //debug  
+ // optState = 1; 
+  
+  
+ var hideRat = 0;  
+  
+  function drawRat() 
+  { 
+    if (paused == false)  
+    { 
+      if (Math.abs(mvx)>1 || Math.abs(mvy>1)) { hideRat = 0; } 
+      hideRat += 1; if (hideRat > 70) { return; }   
+    }//endif  
+     
+    if (mbutton == 1) 
+    { drawSpr("pointer3",vmx+4,vmy+7); return; } 
+    drawSpr("pointer",vmx+4,vmy+7); 
+ 
+    /* 
+          //console.log("reach ", keyTime); 
+      //need a cursor sprite  
+      ctx.fillStyle = "#000000"; 
+      ctx.fillRect(vmx,vmy,3,3); 
+      ctx.fillStyle = "#ff2fff"; 
+      ctx.fillRect(vmx-1,vmy-1,3,3); 
+    */ 
+  }//drawrat 
+    
+  function drawMenu() 
+  { 
+     if (paused == false) { drawRat(); return; } 
+ 
+      
+     ctx.fillStyle = "#000000a0";       
+       ctx.fillRect(0, 0, 320, 240); 
+  
+  
+       
+       resetBtn(); resetBtnCol(); 
+ 
+       if (keyPrompt == 1) 
+       { btnDisable = 1; } 
+        
+       if (mbutton == 0 && mpress == 0){btnFocus = -1; } 
+  
+       var ax, ay; 
+        
+       //after game loaded  
+         if (firstMenu && (bDebug == false)) 
+         { 
+           menuState = 1; 
+           //ctx.fillStyle = "#000000ff";       
+           // ctx.fillRect(0, 0, 320, 240); 
+           if (titleImg != undefined) 
+           { ctx.drawImage(titleImg, 0,0,320,240,     0,0,320,240,); } 
+             
+           ax = 160 - 64; ay = 240-48; 
+           drawBtn(310, ax,ay, 128+16, 16, "Play!"); ay+=24; 
+           drawBtn(320, ax-64+8,ay, 256, 16, "Play - No sound please!"); ay+=24; 
+ 
+           if (btnPush == 310) { paused = false;  menuState = 0; firstMenu = false;  } 
+           if (btnPush == 320) { paused = false;  menuState = 0; firstMenu = false; muteVol = 0.0; } 
+ 
+            drawRat(); 
+ 
+          return;  
+         }//endif    
+          
+     if (menuState != 0) 
+     {  drawSpr("menuback", 40+120, 40+100 );  } 
+             
+     if (menuState == 0) 
+     { 
+ 
+      if (inFocus)        
+      { drawFont3Scale(110,40, 2,2, "PAUSED"); } 
+ 
+        ax = 160 - 64; ay = 120; 
+       if (isOver(ax,ay, 128+16, 24)) { canLock = keyTime; } 
+       drawBtn(10, ax,ay, 128+16, 24, "Continue"); ay+=32; 
+       drawBtn(20, ax,ay, 128+16, 24, "Options"); ay+=32; 
+        
+       if (btnPush == 10) { paused = false; } 
+       if (btnPush == 20) { menuState = 1; } 
+ 
+     } 
+     else if (menuState == 1) 
+     { 
+       ax = 16; ay = 16; 
+        
+       drawBtn(10, ax,ay, 64, 16, "Back"); ax+=70; 
+       resetBtnCol(); if (optState == 0) { setBtnColA(); } 
+       drawBtn(15, ax,ay, 64, 16, "Sound"); ax+=70; 
+       resetBtnCol(); if (optState == 1) { setBtnColA(); } 
+       drawBtn(20, ax,ay, 64, 16, "Keys"); ax+=70; 
+       resetBtnCol(); if (optState == 2) { setBtnColA(); } 
+       if (k_showVidConf) 
+       { 
+       drawBtn(25, ax,ay, 64, 16, "Video"); ax+=70; 
+       resetBtnCol(); 
+       } 
+        
+       if (btnPush == 10) { menuState = 0; } 
+       if (btnPush == 15) { optState = 0;  } 
+       if (btnPush == 20) { optState = 1;  } 
+       if (btnPush == 25) { optState = 2;  } 
+        
+        
+        if (optState == 2) 
+        { 
+         ax = 160 - 64; ay = 64; 
+         ay+=8; 
+          drawLabel(ax,ay, 8, "Framerate:"); 
+ 
+          ay+=16;    
+           
+          resetBtnCol(); if (frameSkip == 0) { setBtnColA(); } 
+          drawBtn(80, ax,ay, 128, 16, "60 FPS"); ay += 24; 
+          resetBtnCol(); if (frameSkip == 1) { setBtnColA(); } 
+          drawBtn(85, ax,ay, 128, 16, "30 FPS"); ay += 24; 
+          resetBtnCol(); if (frameSkip == 2) { setBtnColA(); } 
+          drawBtn(90, ax,ay, 128, 16, "15 FPS"); ay += 24; 
+           
+          if (btnPush == 80)  { frameSkip = 0; } 
+          if (btnPush == 85)  { frameSkip = 1; } 
+          if (btnPush == 90)  { frameSkip = 2; } 
+         
+          if (btnPush > 0)   { saveConfig(); } 
+        }//endif3  
+        
+        if (optState == 1) 
+        { 
+           
+          if (k_showAimConf) 
+          { 
+             ax = 48; ay = 48; 
+             ay+=8; 
+             sliderColor = "#3030f0"; 
+             var ms; 
+             ms = mouseSpeed * 0.5; 
+             drawSlider(50, ax,ay, 128, 16, ms); 
+             drawLabel(ax,ay-8-2, 8, "Aim Speed "+((btnValue*100*2)|0)+"%" );      
+             if (btnPush == 50)  { mouseSpeed = btnValue * 2.0;  } 
+        
+             ax+=128+32;    
+             drawBtn(80, ax,ay, 100, 16, "RESET AIM"); 
+             if (btnPush == 80)  { mouseSpeed = 1.0;   } 
+             if (btnPush > 0)   { saveConfig(); } 
+          }//endif3 
+               
+           
+          ax = 48; ay += 32; 
+           
+ 
+             
+            drawLabel3(ax,ay+4,  k_upName);   
+            drawBtn(300, ax+128, ay, 48, 16, ""+getKname(k_kup)); 
+            drawBtn(305, ax+128+64, ay, 48, 16, ""+getKname(k_kup_alt));  ay += 20; 
+            if (btnPush == 300) { keyPrompt = 1; keyName = k_upName; } 
+            if (btnPush == 305) { keyPrompt = 1; keyName = k_upName+" Alt"; } 
+             
+            drawLabel3(ax,ay+4,  k_downName);   
+            drawBtn(400, ax+128, ay, 48, 16, ""+getKname(k_kdown)); 
+            drawBtn(405, ax+128+64, ay, 48, 16, ""+getKname(k_kdown_alt));  ay += 20; 
+            if (btnPush == 400) { keyPrompt = 1; keyName = k_downName; } 
+            if (btnPush == 405) { keyPrompt = 1; keyName = k_downName+" Alt"; } 
+                      
+            drawLabel3(ax,ay+4,  k_leftName);   
+            drawBtn(100, ax+128, ay, 48, 16, ""+getKname(k_kleft)); 
+            drawBtn(105, ax+128+64, ay, 48, 16, ""+getKname(k_kleft_alt));   ay += 20; 
+            if (btnPush == 100) { keyPrompt = 1; keyName = k_leftName; } 
+            if (btnPush == 105) { keyPrompt = 1; keyName = k_leftName+" Alt"; } 
+             
+            drawLabel3(ax,ay+4,  k_rightName);   
+            drawBtn(200, ax+128, ay, 48, 16, ""+getKname(k_kright)); 
+            drawBtn(205, ax+128+64, ay, 48, 16, ""+getKname(k_kright_alt));  ay += 20; 
+            if (btnPush == 200) { keyPrompt = 1; keyName = k_rightName; } 
+            if (btnPush == 205) { keyPrompt = 1; keyName = k_rightName+" Alt"; } 
+             
+            if (hasFire1) 
+            { 
+              drawLabel3(ax,ay+4,  k_fireName);   
+              drawBtn(500, ax+128, ay, 48, 16, ""+getKname(k_kfire)); 
+              drawBtn(505, ax+128+64, ay, 48, 16, ""+getKname(k_kfire_alt));  ay += 20; 
+              if (btnPush == 500) { keyPrompt = 1; keyName = k_fireName; } 
+              if (btnPush == 505) { keyPrompt = 1; keyName = k_fireName+" Alt"; } 
+            }//endif3 
+ 
+            if (hasFire2) 
+            { 
+              drawLabel3(ax,ay+4,  k_fire2Name);   
+              drawBtn(550, ax+128, ay, 48, 16, ""+getKname(k_kfire2)); 
+              drawBtn(555, ax+128+64, ay, 48, 16, ""+getKname(k_kfire2_alt));  ay += 20; 
+              if (btnPush == 550) { keyPrompt = 1; keyName = k_fire2Name; } 
+              if (btnPush == 555) { keyPrompt = 1; keyName = k_fire2Name+" Alt"; } 
+            }//endif3  
+           
+           
+          ay += 32; ax+=64; 
+          drawBtn(8000, ax,ay, 144, 24, "RESET KEYS"); 
+          if (btnPush == 8000) { resetKeys(); saveConfig(); } 
+           
+           
+              if (keyPrompt == 1) 
+              { 
+               btnPush = -1; 
+               
+              ctx.fillStyle = "#000000a8"; 
+              ctx.fillRect(0,0,320,240); 
+               
+              ctx.fillStyle = "#000000" 
+              ctx.fillRect(60-2,80-2,196+4,64+4); 
+               
+              ctx.fillStyle = "#505050" 
+              ctx.fillRect(60,80,196,64); 
+               
+                btnDisable = -1; 
+                ax = 80; ay = 88; 
+                drawLabel(ax,ay, 8, "Press key for: ");  ay+=16; 
+                drawLabel(ax,ay, 8, keyName); ay+=16; 
+               
+                drawBtn(5300, ax, ay, 64, 16, "Cancel"); 
+                drawBtn(5310, ax+64+16, ay, 64, 16, "Unbind"); 
+                 
+                if (btnPush == 5300)  { keyPrompt = 0;   } 
+                if (btnPush == 5310)  { keyPrompt = 0;  setKey(keyName, 0);   } 
+                if (mouseLook == false) { keyPrompt = 0; } 
+                 
+                if (lastKey == keyTime-1 && lastKeyId == 27) { keyPrompt = 0; } 
+                else  
+                if (lastKey == keyTime-1 && isKeyAllowed(lastKeyId) ) 
+                { keyPrompt = 0;  setKey(keyName, lastKeyId); } 
+               
+              }//endif5 
+          
+         
+        }//endif3 
+        
+        
+        if (optState == 0) 
+        { 
+         if (muteVol > 0.1) { sliderColor = "#30f030"; } 
+         else { sliderColor = "#f03030";  }     
+ 
+        ax = 160 - 64; ay = 64; 
+        if (k_showMusConf) 
+        {           
+         ay+=8; 
+         drawSlider(50, ax,ay, 128, 12, mastVol); 
+         drawLabel(ax,ay-8-2, 8, "Master Volume "+((btnValue*100)|0)+"%" );      
+         if (btnPush == 50)  { mastVol = btnValue; } 
+         
+         ay+=32; 
+         drawSlider(60, ax,ay, 128, 12, musVol); 
+         drawLabel(ax,ay-8-2, 8, "Music Volume "+((btnValue*100)|0)+"%" );      
+         if (btnPush == 60)  { musVol = btnValue; } 
+        }//endif 
+         
+         ay+=32; 
+         drawSlider(70, ax,ay, 128, 12, sndVol); 
+         drawLabel(ax,ay-8-2, 8, "Sound Volume "+((btnValue*100)|0)+"%" );      
+         if (btnPush == 70)  { sndVol = btnValue; } 
+ 
+ 
+          ay+=32; 
+          if (muteVol > 0.1) {  drawBtn(80, ax,ay, 64, 16, "MUTE");  } 
+          else {  drawBtn(80, ax,ay, 64, 16, "UNMUTE");  } 
+           
+          drawBtn(81, ax+70,ay, 64, 16, "RESET"); 
+          if (btnPush == 81) { resetVol(); saveConfig(); } 
+           
+          if (btnPush == 80)  
+          { if (muteVol>0){muteVol=0.0;}else{muteVol=1.0;} }  
+ 
+          if (btnPush == 50 || btnPush == 60 ||btnPush==80)  { recalMusVol(); } 
+           
+          if (btnPush > 0)   { saveConfig(); } 
+        }//endif3 
+         
+     }//endif  
+        
+    drawRat(); 
+  }//drawmenu  
+    
+  </script>
+  
+ 
+ 
+<!-- main  (update function) --> 
+<script>
+ 
+ 
+ 
+ 
+  var lastFpsTime = Date.now(); 
+  var curFps = 0; 
+  var appTime = 0; 
+  function countFps() 
+  { 
+    appTime += 1; 
+    d = (Date.now() - lastFpsTime)/1000; 
+    lastFpsTime = Date.now(); 
+    if (appTime % 5 == 0) 
+    { curFps = (1.0 / d) | 0; } 
+  }//countfps 
+     
+  var inFocus = false; 
+  var prevPaused = false;  
+   
+ 
+  function resetGame() 
+  { 
+    gt = 0; 
+    gameOver = 0; 
+    setRandSeed(1000); 
+   
+  }//resetgame 
+   
+   
+   
+  function init() 
+  { 
+    console.log("init"); 
+ 
+    //r_imgdata backdrop 
+    //320x240 resolution 
+     
+    clearDataPix(128,64,64); 
+     
+    //todo -- turn all sounds to be in a single .js  
+     
+     
+    //add new sprite  
+    //copy image into spr8 dir  
+    //run makesp  
+ 
+    loadImageToSpr(spr8png); 
+     
+    //add new sound  
+    //copy over mp3 
+    //add mp3 in makesp.bat  
+    //run makesp bat  
+    //add sound here      
+     
+    //loadSound(snd1mp3, "snd1", 3); 
+    loadSound(snd3mp3, "snd3", 3); 
+    loadSound(snd5mp3, "snd5", 8); 
+ 
+    resetKeys(); 
+    loadConfig(); 
+     
+    resetGame(); 
+         
+         
+  }//init 
+   
+  
+ 
+     
+  function controls() 
+  { 
+ 
+    mouseUpdate(); 
+    keyCheck();  
+    limitMouse(0,0,320,240); 
+       
+    inFocus = (mouseLook == true); 
+    if (inFocus == false)  
+    { 
+      if (paused==false){pauseAllSnd();} 
+      paused = true;  
+      clearKey(); 
+    }//endif 
+ 
+    keyTime += 1; 
+    if (lastKey == keyTime-1 && inFocus)  
+    { 
+      //f (lastKeyId!=27) { paused = false; } 
+      //P 
+      if (lastKeyId==80) { paused = !paused; } 
+    }//endif 
+     
+     
+    if (prevPaused != paused) 
+    { 
+      prevPaused = paused; 
+      if (paused) { pauseAllSnd(); } 
+      else { resumeAllSnd(); } 
+    }//endif  
+ 
+     
+     
+  }//controls   
+   
+   
+  function afterUpdate() 
+  { 
+     
+  resetBtn(); resetBtnCol();   
+   sprBtn(900, "pause",320-24, 4, 18,18); 
+     if (btnPush == 900) 
+     { paused = !paused; } 
+    
+    //paused menu  
+      drawMenu(); 
+  
+   //debug stuff  
+   if (bDebug) 
+   { 
+    countFps(); 
+    ctx.font = "8px Arial"; 
+    ctx.fillStyle = "#ffFFff"; 
+    //ctx.strokeStyle = "#000000";  
+    var ax, ay; 
+    ax = 3; ay = 8; 
+    ctx.fillText("fps:"+curFps,ax, ay); ay+=8; 
+    ctx.fillText("gt:"+gt, ax, ay); ay+=8; 
+    ctx.fillText("keyTime:"+keyTime, ax, ay); ay+=8; 
+    ctx.fillText("vmx:"+vmx, ax, ay); ay+=8; 
+    ctx.fillText("vmy:"+vmy, ax, ay); ay+=8; 
+    ctx.fillText("mbutton:"+mbutton, ax, ay); ay+=8; 
+//    ctx.fillText("mvx:"+mvx, ax, ay); ay+=8; 
+//    ctx.fillText("mvy:"+mvy, ax, ay); ay+=8; 
+//    ctx.fillText("camx:"+camx, ax, ay); ay+=8; 
+//    ctx.fillText("camy:"+camy, ax, ay); ay+=8; 
+//    ctx.fillText("wmx:"+wmx, ax, ay); ay+=8; 
+//    ctx.fillText("wmy:"+wmy, ax, ay); ay+=8; 
+//    ctx.fillText("act:"+(vecAct.length), ax, ay); ay+=8; 
+//    ctx.fillText("bull:"+(vecBull.length), ax, ay); ay+=8; 
+   }//endif 
+     
+    if (inFocus == false) 
+    {   
+       
+     // ctx.font = "16px Arial"; 
+        //ctx.fillText("out of focus", 32, 64);   
+      ctx.fillStyle = "#00000080"; 
+      ctx.fillRect(0, 0, 320, 240); 
+      drawFont3Scale(40,40, 2,2, "OUT OF FOCUS"); 
+    } 
+ 
+  }//afterupdate 
+   
+   
+  function getMag(dx, dy)  { return Math.sqrt(dx*dx + dy*dy); } 
+   
+  var gameState = 1; 
+  var vecGrid = []; 
+  var mw = 0; 
+  var mh = 0; 
+   
+  var hamx = 1; 
+  var hamy = 1; 
+  var hamwait = 0; 
+   
+  function initTileGrid(aw, ah) 
+  { 
+    var i; var num; 
+    aw |= 0; ah |= 0; 
+    num = aw * ah; 
+    mw = aw; mh = ah; 
+    vecGrid = []; 
+    for (i=0;i<num;i+=1) 
+    { vecGrid[i] = 0; }    
+    console.log("initTileGrid",aw,ah,num, vecGrid);   
+  }//initgrid  
+   
+  function setTile(ax, ay, t) 
+  { 
+    ax |= 0; ay |= 0; 
+    if (ax<0||ax>=mw||ay<0||ay>=mh) { return; } 
+    vecGrid[ (ax + (ay*mw))|0 ] = t; 
+  }//settile  
+   
+  function getTile(ax, ay) 
+  { 
+    ax |= 0; ay |= 0; 
+    if (ax<0||ax>=mw||ay<0||ay>=mh) { return -1; } 
+    return vecGrid[ (ax + (ay*mw))|0 ]; 
+  }//gettile  
+   
+  function setTileRect(ax, ay, aw, ah, t) 
+  { 
+    ax |= 0; ay |= 0; 
+     
+    var i, k; 
+    for (i=0;i<ah;i+=1) 
+    { 
+      for (k=0;k<aw;k+=1) 
+      { 
+        setTile(k+ax,i+ay, t);  
+      }//nextk  
+    }//nexti  
+  }//settrect 
+   
+   
+  function drawBackDrop() 
+  { 
+    var i,k; var ax, ay; 
+    for (i=0;i< 8;i+=1) 
+    { 
+      ay = i * 32 + 16; 
+      for (k=0;k<10;k+=1) 
+      { 
+        ax = k * 32 + 16; 
+     
+        drawSpr("bg1", ax, ay); 
+     
+      }//nextk 
+    }//nexti 
+     
+  }//drawback  
+   
+  function drawTileGrid() 
+  {     
+    var i, k; var ax , ay; 
+    var t;  
+    for (i=0;i<30;i+=1) 
+    { 
+      ay = i * 8 + 4; 
+      for (k=0;k<40;k+=1) 
+      { 
+        t = getTile(k, i); 
+        if (t<=0){ continue; } 
+        ax = k * 8 + 4; 
+        drawSpr("tile"+t, ax, ay); 
+      } 
+    }//nexti  
+  }//drawtile  
+ 
+  function drawAct() 
+  { 
+    drawSpr("ham1", hamx*8+4, hamy*8+4); 
+     
+  }//drawact  
+ 
+   
+   
+  function update() 
+  {  
+     
+    if (firstRun == 1){ firstRun = 0; init(); gameState = 1; return; } 
+    controls(); 
+        
+    //UPDATE 
+      var i; var num; 
+      num = 1; 
+      if (paused) { num = 0; } 
+      if (bDebug && isKeyDown(key_u)) {num=16;} 
+       
+      if (gameState == 1)  
+      {  
+        gameState = 0;  
+        initTileGrid(40, 30);   
+        //setTileRect(0,0,3,3, 1); 
+        setTileRect(0,0,40,30, 3); 
+        setTileRect(1,1,38,28, 0); 
+         
+        setTileRect(6,6,28,18, 1); 
+         
+        setTileRect(16,12, 8,6, 0); 
+         
+        hamx = 18; hamy = 14; 
+         
+        console.log("vecgrid", vecGrid); 
+      }//endif  
+       
+      for (i=0;i<num;i+=1) 
+      {   
+         // if (mhold == 1){  playSnd("snd3", 1); } 
+         
+          if (hamwait > 0) { hamwait -= 1; } 
+         
+          if (hamwait <= 0) 
+          { 
+            var dx, dy; 
+            dx = 0; dy = 0; 
+            if (keyUp)    { dy = -1; } 
+            if (keyDown)  { dy = 1; } 
+            if (keyLeft)  { dx = -1; } 
+            if (keyRight) { dx = 1; } 
+            //if (dx !=0 && dy !=0 ){ dy = 0; } 
+             
+            //push tiles  
+                if ( (dx != 0 || dy != 0 ) && ( dx!=0 && dy !=0)==false) 
+                { 
+                  var k; var kx, ky; var t; 
+                  kx = hamx; ky = hamy; 
+                  for (k=0;k<32;k+=1) 
+                  {  
+                    kx += dx; ky += dy; 
+                    if (getTile(kx,ky)==0) { break; } 
+                  }//nextk  
+                   
+                  if (k<32 && k > 0) 
+                  { 
+                    //cannot seem to play everytime with current method  
+                   //playSnd("snd5", 1); 
+                   //console.log(gt, "push tile", k, dx, dy); 
+                   k+=1; 
+                   kx = hamx+dx*k; ky = hamy+dy*k; 
+                   for(k;k>0;k-=1) 
+                   { 
+                     t = getTile(kx-dx, ky-dy); 
+                     //console.log(gt, "tile ", kx, ky); 
+                     setTile(kx, ky, t); 
+                     kx -= dx; ky -= dy; 
+                   }//nextk         
+                    
+                  }//endif5 
+                }//endif3  
+             
+            //ham wall collision  
+           if (getTile(hamx+dx, hamy)) { dx = 0;  } 
+           if (getTile(hamx, hamy+dy)) { dy = 0;  } 
+           if (getTile(hamx+dx, hamy+dy)) { dx = 0;  } 
+             
+              hamx += dx;  
+              hamy += dy;           
+              hamwait = 4;  
+          }//endif  
+           
+        /* 
+        var t; 
+        if (getRand()<0.50) { t = 0 } else { t = 1; } 
+          setTile(getRand()*20, getRand()*15,  t); 
+          */ 
+       
+          gt += 1;   
+   
+      }//nexti 
+       
+ 
+        //RENDER      
+          //ctx.fillStyle = "#000000"; 
+          ctx.fillStyle = "#808080"; 
+          ctx.fillRect(0, 0, 320, 240); 
+          
+        /*          
+          setDataLine(0,0, 320, 240,  255, 255,255); 
+           
+          setDataLine(getRand()*320, getRand()*240, 
+          getRand()*320, getRand()*240,  getRand()*255,getRand()*255,getRand()*255); 
+           
+          ctx.putImageData(imgData, 0, 0); 
+        */ 
+ 
+           drawBackDrop(); 
+           drawTileGrid(); 
+           drawAct(); 
+           
+           
+           
+           
+           
+        //TEST 
+         // drawSpr("cat", 160, 120); 
+           
+       
+           
+          /* 
+          var ta; 
+          var ax, ay; var ky; 
+          var k; var d; var da; 
+          var dx, dy; var t; 
+          ax = 0; ay = 0; 
+          ta = gt * 0.1; 
+          for (i=0;i<13;i+=1) 
+          {             
+            ay = 16 + i * 16; 
+           for (k=0;k<19;k+=1) 
+           { 
+              ax = 16 + k * 16 ; 
+              ky = ay + Math.sin(ta) * 3; 
+              ta += 0.95; 
+               
+              dx = vmx - ax ; 
+              dy = vmy - ky ; 
+              d = Math.sqrt(dx*dx+dy*dy); 
+               
+              if (d > 0.0) 
+              { 
+                dx /= d; 
+                dy /= d; 
+                 
+                t = d / 64.0; 
+                t = 1.0 - t; 
+                if (t < 0.0) { t = 0.0; } 
+                if (t > 1.0) { t = 1.0; } 
+                 
+                //d = 32 - d; 
+                ax += dx * -32 * t; 
+                ky += dy * -32 * t; 
+                 
+                 
+              }             
+               
+               
+              drawSpr("brick", ax, ky); 
+           }//nextk  
+          }//nexti  
+          */ 
+           
+ 
+   
+      afterUpdate(); 
+   
+  }//update 
+ 
+  </script>
+  
+ 
+ 
+</body> 
+ 
+ 
+</html> 

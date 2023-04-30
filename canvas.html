@@ -1,0 +1,123 @@
+
+<html>
+
+<head>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+<style>
+canvas {
+  image-rendering: optimizeSpeed;             
+  image-rendering: -moz-crisp-edges;          
+  image-rendering: -webkit-optimize-contrast; 
+  image-rendering: -o-crisp-edges;            
+  image-rendering: pixelated;                 
+  -ms-interpolation-mode: nearest-neighbor;   
+}
+</style>
+</head>
+
+<body bgcolor="#000000" onresize="resizeHandle()" >
+
+<div style="text-align:center;" >
+<canvas id="myCanvas" width="320" height="240"  style="border:1px solid #000000;" />
+</div>
+
+
+<script> 
+   function resizeHandle()
+   {/*
+    if (window.innerWidth > 1024 && window.innerHeight > 768)
+    {  canvas.style.width = '1024px'; canvas.style.height = '768px';  return; }
+    if (window.innerWidth > 512 && window.innerHeight > 384)
+    {  canvas.style.width = '512px'; canvas.style.height = '384px';  return; }
+    canvas.style.width = '256px'; canvas.style.height = '192px'; */
+   }
+
+</script>
+
+ <script>
+  var canvas = document.getElementById("myCanvas");
+  canvas.style.width = '640px'; canvas.style.height = '480px';
+
+  var ctx = canvas.getContext("2d"); 
+  ctx.imageSmoothingEnabled = false;
+  var firstRun = 1; 
+  var bDebug = false; 
+
+
+
+
+  //need to predefine for chrome
+  function init() { console.log("wronginit"); } 
+  function update() { console.log("wrongupdate"); }
+  
+  var lastTime = 0;
+  var load = 0;  
+  
+  //so this settimeout hack 
+  //so far guarantess 60 fps on all browsers 
+  function mainLoop()
+    {
+     
+      //check if tileimage is loaded
+      //need to wait even though its part of file 
+      if  (load == 0)
+      {
+        load = 1;
+        //if (tileImage == undefined) { load  = 0; }
+        //else if (tileImage.width <= 0) { load = 0; }        
+      }//endif
+      
+     if (load < 1) { setTimeout(mainLoop, 1); return; }
+     
+     var ctime = new Date().getTime();
+     var dt;
+     dt = ctime - lastTime;
+     //if (dt > (1000/60))
+     if (dt > 14)
+     {
+     // console.log("dt ",dt);
+      lastTime = ctime;
+       ctx.save();
+        update();
+       ctx.restore();
+     
+     }
+          
+     setTimeout(mainLoop, 1);
+     //if (firstRun==1){ firstRun = 0; init(); }      
+    }//mainLoop
+    
+    //seems to be faster than settimeout
+    //setInterval(mainLoop, Math.floor(1000/120));
+    setTimeout(mainLoop, 1);
+</script>
+
+
+
+<!-- core libs -->
+<script src="c_debug.js" ></script> 
+<script src="core.js" ></script> 
+
+<!-- assets -->
+<script src="spr8.js" ></script> 
+<script src="i_spr8.png.js" ></script> 
+<script src="i_snd3.mp3.js" ></script> 
+<script src="i_snd5.mp3.js" ></script> 
+<script src="i_title.png.js" ></script> 
+
+<!-- load extra libs here -->
+<script src="r_imgdata.js" ></script> 
+<script src="g_global.js" ></script> 
+<script src="g_config.js" ></script> 
+<script src="g_menu.js" ></script> 
+
+
+<!-- main  (update function) -->
+<script src="main.js" ></script> 
+
+
+</body>
+
+
+</html>

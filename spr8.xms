@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<texture width="512" height="512" name="spr8.png">
+  <image  x="283" y="1" width="32" height="32" name="bg1" offx="0" offy="0" ow="32" oh="32" />
+  <image  x="283" y="35" width="32" height="32" name="bg3" offx="0" offy="0" ow="32" oh="32" />
+  <image  x="1" y="195" width="144" height="24" name="btn144x24" offx="0" offy="0" ow="144" oh="24" />
+  <image  x="1" y="221" width="144" height="24" name="btn144x24over" offx="0" offy="0" ow="144" oh="24" />
+  <image  x="1" y="283" width="48" height="16" name="btn48x16" offx="0" offy="0" ow="48" oh="16" />
+  <image  x="1" y="301" width="48" height="16" name="btn48x16over" offx="0" offy="0" ow="48" oh="16" />
+  <image  x="1" y="247" width="64" height="16" name="btn64x16" offx="0" offy="0" ow="64" oh="16" />
+  <image  x="1" y="265" width="64" height="16" name="btn64x16over" offx="0" offy="0" ow="64" oh="16" />
+  <image  x="283" y="107" width="8" height="8" name="duck1" offx="0" offy="0" ow="8" oh="8" />
+  <image  x="293" y="107" width="8" height="8" name="ham0" offx="0" offy="0" ow="8" oh="8" />
+  <image  x="303" y="107" width="8" height="8" name="ham1" offx="0" offy="0" ow="8" oh="8" />
+  <image  x="283" y="117" width="8" height="8" name="ham2" offx="0" offy="0" ow="8" oh="8" />
+  <image  x="293" y="117" width="8" height="8" name="ham3" offx="0" offy="0" ow="8" oh="8" />
+  <image  x="303" y="69" width="16" height="16" name="magichit" offx="0" offy="0" ow="16" oh="16" />
+  <image  x="1" y="1" width="280" height="192" name="menuback" offx="0" offy="0" ow="280" oh="192" />
+  <image  x="283" y="69" width="18" height="18" name="pause" offx="0" offy="0" ow="18" oh="18" />
+  <image  x="283" y="89" width="16" height="16" name="pointer" offx="0" offy="0" ow="16" oh="16" />
+  <image  x="301" y="89" width="16" height="16" name="pointer3" offx="0" offy="0" ow="16" oh="16" />
+  <image  x="303" y="117" width="8" height="8" name="tile0" offx="0" offy="0" ow="8" oh="8" />
+  <image  x="283" y="127" width="8" height="8" name="tile1" offx="0" offy="0" ow="8" oh="8" />
+  <image  x="293" y="127" width="8" height="8" name="tile3" offx="0" offy="0" ow="8" oh="8" />
+</texture>
